@@ -77,10 +77,6 @@ struct ContentView: View {
                         Stepper("^[\(numberOfEpisode) episode](inflect: true)" ,value: $numberOfEpisode, in: 1...15 )
                     }
                 }
-                
-                
-                
-                
             }
             .navigationTitle("PodShift")
             .toolbar{
@@ -90,12 +86,10 @@ struct ContentView: View {
                     } message: {
                         Text(alertMessage)
                     }
-                
             }
-            
-            
         }
     }
+    
     func test() -> Void{
         let podshiftURL = URL(string: podshiftAPI)!
         var request = URLRequest(url: podshiftURL)
