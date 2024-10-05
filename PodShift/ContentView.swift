@@ -139,6 +139,7 @@ struct ContentView: View {
                     alertTitle = "Success"
 
                     let contentResponse = try JSONDecoder().decode(ContentResponse.self, from: data)
+                    pasteboard.string = contentResponse.url
                     customFeed = contentResponse.url
                     alertMessage = "Url added to clipboard"
                 } else{
@@ -151,7 +152,6 @@ struct ContentView: View {
             }
             showingAlert = true
         }
-        pasteboard.string = customFeed
     }
 }
 
