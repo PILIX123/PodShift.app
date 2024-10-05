@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    private let podshiftAPI = "http://podshift.ddns.net:8080/PodShift/"
+    private let podshiftAPI = "http://localhost:8000/PodShift/"
     @State private var url = ""
     @State private var numberOfEpisode = 1
     @State private var numberOfX = 2
@@ -62,11 +62,16 @@ struct ContentView: View {
         }
     }
     
+    let pasteboard = UIPasteboard.general
+    
+    
     var body: some View {
         NavigationStack {
             Form(){
                 Section(){
                     TextField("Url of the RSS feed",text:$url)
+                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
                 }
                 Section("Configuratuion"){
                     VStack(alignment: .leading, spacing: 0){
@@ -90,6 +95,9 @@ struct ContentView: View {
                         Stepper("^[\(numberOfEpisode) episode](inflect: true)" ,value: $numberOfEpisode, in: 1...15 )
                     }
                 }
+                Text("\(customFeed)")
+                    .textSelection(.enabled)
+                
             }
             .navigationTitle("PodShift")
             .toolbar{
@@ -132,15 +140,18 @@ struct ContentView: View {
 
                     let contentResponse = try JSONDecoder().decode(ContentResponse.self, from: data)
                     customFeed = contentResponse.url
+                    alertMessage = "Url added to clipboard"
                 } else{
                         let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
                         alertTitle = errorResponse.detail
                 }
             } catch{
                 alertTitle = "There was an error with the request"
+                alertMessage = "\(error)"
             }
             showingAlert = true
         }
+        pasteboard.string = customFeed
     }
 }
 
