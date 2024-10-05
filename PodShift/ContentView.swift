@@ -17,6 +17,7 @@ struct ContentView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var customFeed: URL?
+    @FocusState private var urlSelected:Bool
     
     struct ErrorResponse: Codable {
         let detail: String
@@ -67,11 +68,12 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            Form(){
-                Section(){
+            Form{
+                Section{
                     TextField("Url of the RSS feed",text:$url)
                         .disableAutocorrection(true)
                         .textInputAutocapitalization(.never)
+                        .focused($urlSelected)
                 }
                 Section("Configuratuion"){
                     VStack(alignment: .leading, spacing: 0){
@@ -95,33 +97,45 @@ struct ContentView: View {
                         Stepper("^[\(numberOfEpisode) episode](inflect: true)" ,value: $numberOfEpisode, in: 1...15 )
                     }
                 }
-                if let validFeed = customFeed {
-                    ShareLink(item: validFeed) {
+                Section{
+                    if let validFeed = customFeed {
+                        ShareLink(item: validFeed) {
+                            HStack {
+                                Text(validFeed.absoluteString)
+                                Spacer()
+                                Image(systemName: "square.and.arrow.up")
+                                    .foregroundStyle(Color.accentColor)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    } else {
                         HStack {
-                            Text(validFeed.absoluteString)
+                            Text("No URL")
                             Spacer()
                             Image(systemName: "square.and.arrow.up")
-                                .foregroundStyle(Color.accentColor)
+                                .foregroundStyle(Color.gray)
                         }
                     }
-                    .buttonStyle(.plain)
-                } else {
-                    HStack {
-                        Text("No URL")
-                        Spacer()
-                        Image(systemName: "square.and.arrow.up")
-                            .foregroundStyle(Color.gray)
-                    }
+                }
+                HStack{
+                    Spacer()
+                    Button("Get Custom Feed", action: get_custom_feed)
+                        .alert(alertTitle,isPresented: $showingAlert){
+                            Button("Ok"){}
+                        } message: {
+                            Text(alertMessage)
+                        }
+                        .buttonStyle(.borderedProminent)
+                    Spacer()
                 }
             }
             .navigationTitle("PodShift")
             .toolbar{
-                Button("Get Custom Feed", action: get_custom_feed)
-                    .alert(alertTitle,isPresented: $showingAlert){
-                        Button("Ok"){}
-                    } message: {
-                        Text(alertMessage)
+                if urlSelected{
+                    Button("Done"){
+                        urlSelected = false
                     }
+                }
             }
         }
     }
