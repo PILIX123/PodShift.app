@@ -16,7 +16,7 @@ struct ContentView: View {
     @State private var showingAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
-    @State private var customFeed = ""
+    @State private var customFeed: URL?
     
     struct ErrorResponse: Codable {
         let detail: String
@@ -95,9 +95,24 @@ struct ContentView: View {
                         Stepper("^[\(numberOfEpisode) episode](inflect: true)" ,value: $numberOfEpisode, in: 1...15 )
                     }
                 }
-                Text("\(customFeed)")
-                    .textSelection(.enabled)
-                
+                if let validFeed = customFeed {
+                    ShareLink(item: validFeed) {
+                        HStack {
+                            Text(validFeed.absoluteString)
+                            Spacer()
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundStyle(Color.accentColor)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    HStack {
+                        Text("No URL")
+                        Spacer()
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundStyle(Color.gray)
+                    }
+                }
             }
             .navigationTitle("PodShift")
             .toolbar{
@@ -140,7 +155,7 @@ struct ContentView: View {
 
                     let contentResponse = try JSONDecoder().decode(ContentResponse.self, from: data)
                     pasteboard.string = contentResponse.url
-                    customFeed = contentResponse.url
+                    customFeed = URL(string: contentResponse.url) ?? nil
                     alertMessage = "Url added to clipboard"
                 } else{
                         let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
