@@ -16,12 +16,25 @@ struct ContentView: View {
     @State private var showingAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
+    @State private var customFeed = ""
     
     struct ErrorResponse: Codable {
-        let detail: String?
+        let detail: String
     }
+    
+    struct ContentResponse: Codable{
+        let url : String
+    }
+    
+    struct FormContent: Encodable{
+        let url: String
+        let amountOfEpisode: Int
+        let recurrence:Int
+        let everyX: Int
+    }
+    
     enum Interval: CaseIterable{
-        case week, day, year, month
+        case day, week, month, year
         
         func stringValue() -> String{
             switch(self){
@@ -80,7 +93,7 @@ struct ContentView: View {
             }
             .navigationTitle("PodShift")
             .toolbar{
-                Button("Get Custom Feed", action: test)
+                Button("Get Custom Feed", action: get_custom_feed)
                     .alert(alertTitle,isPresented: $showingAlert){
                         Button("Ok"){}
                     } message: {
@@ -90,16 +103,11 @@ struct ContentView: View {
         }
     }
     
-    func test() -> Void{
+    func get_custom_feed() -> Void{
         let podshiftURL = URL(string: podshiftAPI)!
         var request = URLRequest(url: podshiftURL)
         request.httpMethod = "POST"
-        struct FormContent: Encodable{
-            let url: String
-            let amountOfEpisode: Int
-            let recurrence:Int
-            let everyX: Int
-        }
+        
         
         let formContent = FormContent(
             url: url,
@@ -121,26 +129,19 @@ struct ContentView: View {
                 
                 if statusCode == 200{
                     alertTitle = "Success"
+
+                    let contentResponse = try JSONDecoder().decode(ContentResponse.self, from: data)
+                    customFeed = contentResponse.url
                 } else{
-                   
-                    alertTitle = "Fail"
-                    do{
                         let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-                        alertMessage = errorResponse.detail!
-                    }
-                    catch{
-                        alertMessage = "There was an unexpected error"
-                    }
+                        alertTitle = errorResponse.detail
                 }
-                showingAlert = true
             } catch{
                 alertTitle = "There was an error with the request"
-                
-                showingAlert = true
             }
+            showingAlert = true
         }
     }
-    
 }
 
 #Preview {
