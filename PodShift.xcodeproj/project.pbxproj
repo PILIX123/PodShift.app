@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		44D22BB82CB3462A00428214 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 44D22BB72CB3462A00428214 /* Config.xcconfig */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		44D22BB72CB3462A00428214 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		44D771F72CA7BC5700A32D44 /* PodShift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PodShift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -45,6 +50,7 @@
 		44D771EE2CA7BC5700A32D44 = {
 			isa = PBXGroup;
 			children = (
+				44D22BB72CB3462A00428214 /* Config.xcconfig */,
 				44D771F92CA7BC5700A32D44 /* PodShift */,
 				44D771F82CA7BC5700A32D44 /* Products */,
 			);
@@ -122,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44D22BB82CB3462A00428214 /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -259,6 +266,7 @@
 		};
 		44D772062CA7BC5800A32D44 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 44D22BB72CB3462A00428214 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

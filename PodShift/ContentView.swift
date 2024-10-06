@@ -17,28 +17,38 @@ struct ContentView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var customFeed: URL?
-    @FocusState private var urlSelected:Bool
+    //@State private var containCustomFeed:
+    @FocusState private var urlSelected: Bool
     
+    var formattedURL:String{
+        if !url.starts(with: "https://"){
+            return "https://\(url)"
+        }
+        else{
+            return url
+        }
+    }
+
     struct ErrorResponse: Codable {
         let detail: String
     }
-    
-    struct ContentResponse: Codable{
-        let url : String
+
+    struct ContentResponse: Codable {
+        let url: String
     }
-    
-    struct FormContent: Encodable{
+
+    struct FormContent: Encodable {
         let url: String
         let amountOfEpisode: Int
-        let recurrence:Int
+        let recurrence: Int
         let everyX: Int
     }
-    
-    enum Interval: CaseIterable{
+
+    enum Interval: CaseIterable {
         case day, week, month, year
-        
-        func stringValue() -> String{
-            switch(self){
+
+        func stringValue() -> String {
+            switch self {
             case .day:
                 return "day"
             case .week:
@@ -49,8 +59,8 @@ struct ContentView: View {
                 return "year"
             }
         }
-        func intValue() -> Int{
-            switch(self){
+        func intValue() -> Int {
+            switch self {
             case .day:
                 return 3
             case .week:
@@ -62,41 +72,48 @@ struct ContentView: View {
             }
         }
     }
-    
+
     let pasteboard = UIPasteboard.general
-    
-    
+
     var body: some View {
         NavigationStack {
-            Form{
-                Section{
-                    TextField("Url of the RSS feed",text:$url)
+            Form {
+                Section {
+                    TextField("URL of the RSS feed", text: $url)
                         .disableAutocorrection(true)
                         .textInputAutocapitalization(.never)
                         .focused($urlSelected)
+                        .keyboardType(.URL)
                 }
-                Section("Configuratuion"){
-                    VStack(alignment: .leading, spacing: 0){
+                Section("Configuratuion") {
+                    VStack(alignment: .leading, spacing: 0) {
                         Text("Desired interval")
                             .font(.headline)
                             .padding(.bottom, 10)
-                        Picker("Desired interval", selection: $interval){
-                            ForEach(Interval.allCases, id:\.self){
+                        Picker("Desired interval", selection: $interval) {
+                            ForEach(Interval.allCases, id: \.self) {
                                 Text($0.stringValue().capitalized)
                             }
                         }
                         .pickerStyle(.segmented)
                     }
-                    VStack(alignment: .leading, spacing: 0){
-                        Stepper("^[Every \(numberOfX) \(interval.stringValue())](inflect: true)" ,value: $numberOfX, in: 1...50 )
+                    VStack(alignment: .leading, spacing: 0) {
+                        Stepper(
+                            "^[Every \(numberOfX) \(interval.stringValue())](inflect: true)",
+                            value: $numberOfX, in: 1...50)
                     }
-                    VStack(alignment: .leading, spacing: 0){
-                        Text("Number of desired episodes per ^[\(numberOfX) \(interval.stringValue())](inflect: true)")
-                            .font(.headline)
-                            .padding(.bottom)
-                        Stepper("^[\(numberOfEpisode) episode](inflect: true)" ,value: $numberOfEpisode, in: 1...15 )
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(
+                            "Number of desired episodes per ^[\(numberOfX) \(interval.stringValue())](inflect: true)"
+                        )
+                        .font(.headline)
+                        .padding(.bottom)
+                        Stepper(
+                            "^[\(numberOfEpisode) episode](inflect: true)",
+                            value: $numberOfEpisode, in: 1...15)
                     }
                 }
+                
                 Section{
                     if let validFeed = customFeed {
                         ShareLink(item: validFeed) {
@@ -108,76 +125,72 @@ struct ContentView: View {
                             }
                         }
                         .buttonStyle(.plain)
-                    } else {
-                        HStack {
-                            Text("No URL")
-                            Spacer()
-                            Image(systemName: "square.and.arrow.up")
-                                .foregroundStyle(Color.gray)
-                        }
                     }
                 }
-                HStack{
-                    Spacer()
-                    Button("Get Custom Feed", action: get_custom_feed)
-                        .alert(alertTitle,isPresented: $showingAlert){
-                            Button("Ok"){}
-                        } message: {
-                            Text(alertMessage)
+                if(!url.isEmpty){
+                    Section{
+                        HStack {
+                            Spacer()
+                            Button("Get Custom Feed", action: get_custom_feed)
+                                .alert(alertTitle, isPresented: $showingAlert) {
+                                    Button("Ok") {}
+                                } message: {
+                                    Text(alertMessage)
+                                }
+                                .controlSize(.large)
+                                .buttonStyle(.borderedProminent)
+                            Spacer()
                         }
-                        .buttonStyle(.borderedProminent)
-                    Spacer()
+                        .listRowBackground(Color.clear)
+                    }
                 }
             }
             .navigationTitle("PodShift")
-            .toolbar{
-                if urlSelected{
-                    Button("Done"){
+            .toolbar {
+                if urlSelected {
+                    Button("Done") {
                         urlSelected = false
                     }
                 }
             }
         }
     }
-    
-    func get_custom_feed() -> Void{
+
+    func get_custom_feed() {
         let podshiftURL = URL(string: podshiftAPI)!
         var request = URLRequest(url: podshiftURL)
         request.httpMethod = "POST"
-        
-        
         let formContent = FormContent(
-            url: url,
+            url: formattedURL,
             amountOfEpisode: numberOfEpisode,
             recurrence: interval.intValue(),
             everyX: numberOfX
         )
-        
+
         let data = try! JSONEncoder().encode(formContent)
-        
+
         request.httpBody = data
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        Task{
-            do{
-                let (data,response) = try await URLSession.shared.data(for: request)
-               
+
+        Task {
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+
                 let statusCode = (response as! HTTPURLResponse).statusCode
-                
-                if statusCode == 200{
+
+                if statusCode == 200 {
                     alertTitle = "Success"
 
                     let contentResponse = try JSONDecoder().decode(ContentResponse.self, from: data)
                     pasteboard.string = contentResponse.url
                     customFeed = URL(string: contentResponse.url) ?? nil
                     alertMessage = "Url added to clipboard"
-                } else{
-                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-                        alertTitle = errorResponse.detail
+                } else {
+                    let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+                    alertTitle = errorResponse.detail
                 }
-            } catch{
+            } catch {
                 alertTitle = "There was an error with the request"
-                alertMessage = "\(error)"
             }
             showingAlert = true
         }
