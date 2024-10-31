@@ -1,57 +1,14 @@
-//
-//  ContentView.swift
-//  PodShift
-//
-//  Created by Pierre-Luc Robitaille on 2024-09-28.
-//
-
+////
+////  AddView.swift
+////  PodShift
+////
+////  Created by Pierre-Luc Robitaille on 2024-10-30.
+////
 import SwiftUI
 
-struct ErrorResponse: Codable {
-    let detail: String
-}
-
-struct ContentResponse: Codable {
-    let url: String
-}
-
-struct FormContent: Encodable {
-    let url: String
-    let amountOfEpisode: Int
-    let recurrence: Int
-    let everyX: Int
-}
-
-enum Interval: CaseIterable {
-    case day, week, month, year
-
-    func stringValue() -> String {
-        switch self {
-        case .day:
-            return "day"
-        case .week:
-            return "week"
-        case .month:
-            return "month"
-        case .year:
-            return "year"
-        }
-    }
-    func intValue() -> Int {
-        switch self {
-        case .day:
-            return 3
-        case .week:
-            return 2
-        case .month:
-            return 1
-        case .year:
-            return 0
-        }
-    }
-}
-
-struct ContentView: View {
+struct AddView: View {
+    @Environment(\.dismiss) var dismiss
+    
     private let podshiftAPI = "http://localhost:8000/PodShift/"
     @State private var url = ""
     @State private var numberOfEpisode = 1
@@ -72,11 +29,9 @@ struct ContentView: View {
             return url
         }
     }
-
     
-
     let pasteboard = UIPasteboard.general
-
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -147,7 +102,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationTitle("PodShift")
+            .navigationTitle("Add a new shifted feed")
             .toolbar {
                 if urlSelected {
                     Button("Done") {
@@ -195,10 +150,11 @@ struct ContentView: View {
                 alertTitle = "There was an error with the request"
             }
             showingAlert = true
+            dismiss()
         }
     }
 }
 
 #Preview {
-    ContentView()
+    AddView()
 }
