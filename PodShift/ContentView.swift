@@ -22,8 +22,11 @@ struct FormContent: Encodable {
     let everyX: Int
 }
 
-enum Interval: CaseIterable {
-    case day, week, month, year
+enum Interval: Int, CaseIterable{
+    case day = 3
+    case week = 2
+    case month = 1
+    case year = 0
 
     func stringValue() -> String {
         switch self {

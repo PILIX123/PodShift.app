@@ -11,7 +11,7 @@ import SwiftUI
 struct PodShiftApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView2(podcast:Podcast(id:UUID().uuidString,title:"Test",frequence:2,interval:1,amount:1,url:"example.com"))
         }
     }
 }
