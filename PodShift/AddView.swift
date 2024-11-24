@@ -8,7 +8,6 @@ import SwiftUI
 
 struct AddView: View {
     @Environment(\.dismiss) var dismiss
-    
     private let podshiftAPI = "http://localhost:8000/PodShift/"
     @State private var url = ""
     @State private var numberOfEpisode = 1
@@ -20,18 +19,17 @@ struct AddView: View {
     @State private var customFeed: URL?
     //@State private var containCustomFeed:
     @FocusState private var urlSelected: Bool
-    
-    var formattedURL:String{
-        if !url.starts(with: "https://"){
+    var podcasts: [Podcast]
+    var formattedURL: String {
+        if !url.starts(with: "https://") {
             return "https://\(url)"
-        }
-        else{
+        } else {
             return url
         }
     }
-    
+
     let pasteboard = UIPasteboard.general
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -70,8 +68,8 @@ struct AddView: View {
                             value: $numberOfEpisode, in: 1...15)
                     }
                 }
-                
-                Section{
+
+                Section {
                     if let validFeed = customFeed {
                         ShareLink(item: validFeed) {
                             HStack {
@@ -84,8 +82,8 @@ struct AddView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                if(!url.isEmpty){
-                    Section{
+                if !url.isEmpty {
+                    Section {
                         HStack {
                             Spacer()
                             Button("Get Custom Feed", action: get_custom_feed)
@@ -150,11 +148,16 @@ struct AddView: View {
                 alertTitle = "There was an error with the request"
             }
             showingAlert = true
+
             dismiss()
         }
     }
 }
 
 #Preview {
-    AddView()
+    AddView(podcasts: [
+        Podcast(
+            id: "36de6aa6-52be-11ef-b68d-825a0b18bae7", title: "ATP", frequence: 2, interval: 1,
+            amount: 1, url: "atp.fm/rss")
+    ])
 }

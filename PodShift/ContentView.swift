@@ -22,7 +22,7 @@ struct FormContent: Encodable {
     let everyX: Int
 }
 
-enum Interval: Int, CaseIterable{
+enum Interval: Int, CaseIterable {
     case day = 3
     case week = 2
     case month = 1
@@ -66,17 +66,14 @@ struct ContentView: View {
     @State private var customFeed: URL?
     //@State private var containCustomFeed:
     @FocusState private var urlSelected: Bool
-    
-    var formattedURL:String{
-        if !url.starts(with: "https://"){
+
+    var formattedURL: String {
+        if !url.starts(with: "https://") {
             return "https://\(url)"
-        }
-        else{
+        } else {
             return url
         }
     }
-
-    
 
     let pasteboard = UIPasteboard.general
 
@@ -118,8 +115,8 @@ struct ContentView: View {
                             value: $numberOfEpisode, in: 1...15)
                     }
                 }
-                
-                Section{
+
+                Section {
                     if let validFeed = customFeed {
                         ShareLink(item: validFeed) {
                             HStack {
@@ -132,8 +129,8 @@ struct ContentView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                if(!url.isEmpty){
-                    Section{
+                if !url.isEmpty {
+                    Section {
                         HStack {
                             Spacer()
                             Button("Get Custom Feed", action: get_custom_feed)
