@@ -25,7 +25,7 @@ struct UpdateResponse: Codable {
 
 struct ContentView2: View {
     @State public var podcast: Podcast
-    @State private var editMode = true
+    @State private var editMode = false
     @State private var interval: Interval
     @State private var alertTitle = ""
     @State private var showAlert = false

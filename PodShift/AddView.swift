@@ -88,7 +88,10 @@ struct AddView: View {
                             Spacer()
                             Button("Get Custom Feed", action: get_custom_feed)
                                 .alert(alertTitle, isPresented: $showingAlert) {
-                                    Button("Ok") {}
+                                    Button("Ok") {
+                                        
+                                        dismiss()
+                                    }
                                 } message: {
                                     Text(alertMessage)
                                 }
@@ -137,9 +140,18 @@ struct AddView: View {
                     alertTitle = "Success"
 
                     let contentResponse = try JSONDecoder().decode(ContentResponse.self, from: data)
-                    pasteboard.string = contentResponse.url
+                    pasteboard.string = contentResponse.custom_url
+                    let newPodcast = Podcast(
+                        id: contentResponse.UUID,
+                        title: contentResponse.title,
+                        frequence: contentResponse.frequence,
+                        interval: contentResponse.interval,
+                        amount: contentResponse.amount,
+                        url: contentResponse.url
+                        )
                     customFeed = URL(string: contentResponse.url) ?? nil
                     alertMessage = "Url added to clipboard"
+                    podcasts.append(newPodcast)
                 } else {
                     let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
                     alertTitle = errorResponse.detail
@@ -149,7 +161,7 @@ struct AddView: View {
             }
             showingAlert = true
 
-            dismiss()
+            
         }
     }
 }

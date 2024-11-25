@@ -12,7 +12,13 @@ struct ErrorResponse: Codable {
 }
 
 struct ContentResponse: Codable {
-    let url: String
+    let custom_url: String
+    let UUID: String
+    let title: String
+    let frequence: Int
+    let interval:Int
+    let amount:Int
+    let url:String
 }
 
 struct FormContent: Encodable {
