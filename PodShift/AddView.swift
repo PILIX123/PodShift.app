@@ -9,6 +9,7 @@ import SwiftUI
 struct AddView: View {
     @Environment(\.dismiss) var dismiss
     private let podshiftAPI = "http://localhost:8000/PodShift/"
+//    private let podshiftAPI = "http://www.podshift.net:8080/PodShift/"
     @State private var url = ""
     @State private var numberOfEpisode = 1
     @State private var numberOfX = 2
@@ -19,7 +20,7 @@ struct AddView: View {
     @State private var customFeed: URL?
     //@State private var containCustomFeed:
     @FocusState private var urlSelected: Bool
-    var podcasts: [Podcast]
+    var podcasts: Podcasts
     var formattedURL: String {
         if !url.starts(with: "https://") {
             return "https://\(url)"
@@ -69,19 +70,19 @@ struct AddView: View {
                     }
                 }
 
-                Section {
-                    if let validFeed = customFeed {
-                        ShareLink(item: validFeed) {
-                            HStack {
-                                Text(validFeed.absoluteString)
-                                Spacer()
-                                Image(systemName: "square.and.arrow.up")
-                                    .foregroundStyle(Color.accentColor)
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
+//                Section {
+//                    if let validFeed = customFeed {
+//                        ShareLink(item: validFeed) {
+//                            HStack {
+//                                Text(validFeed.absoluteString)
+//                                Spacer()
+//                                Image(systemName: "square.and.arrow.up")
+//                                    .foregroundStyle(Color.accentColor)
+//                            }
+//                        }
+//                        .buttonStyle(.plain)
+//                    }
+//                }
                 if !url.isEmpty {
                     Section {
                         HStack {
@@ -89,8 +90,9 @@ struct AddView: View {
                             Button("Get Custom Feed", action: get_custom_feed)
                                 .alert(alertTitle, isPresented: $showingAlert) {
                                     Button("Ok") {
-                                        
-                                        dismiss()
+                                        if(alertTitle == "Success") {
+                                            dismiss()
+                                        }
                                     }
                                 } message: {
                                     Text(alertMessage)
@@ -106,8 +108,15 @@ struct AddView: View {
             .navigationTitle("Add a new shifted feed")
             .toolbar {
                 if urlSelected {
-                    Button("Done") {
-                        urlSelected = false
+                    ToolbarItem(placement: .topBarTrailing){
+                        Button("Done") {
+                            urlSelected = false
+                        }
+                    }
+                }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
                     }
                 }
             }
@@ -151,7 +160,7 @@ struct AddView: View {
                         )
                     customFeed = URL(string: contentResponse.url) ?? nil
                     alertMessage = "Url added to clipboard"
-                    podcasts.append(newPodcast)
+                    podcasts.items.append(newPodcast)
                 } else {
                     let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
                     alertTitle = errorResponse.detail
@@ -167,9 +176,5 @@ struct AddView: View {
 }
 
 #Preview {
-    AddView(podcasts: [
-        Podcast(
-            id: "36de6aa6-52be-11ef-b68d-825a0b18bae7", title: "ATP", frequence: 2, interval: 1,
-            amount: 1, url: "atp.fm/rss")
-    ])
+    AddView(podcasts:Podcasts())
 }

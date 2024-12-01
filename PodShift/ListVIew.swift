@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Podcast: Hashable, Identifiable {
+struct Podcast: Hashable, Identifiable, Codable {
     var id: String
     var title: String
     var frequence: Int
@@ -16,43 +16,55 @@ struct Podcast: Hashable, Identifiable {
     var url: String
 }
 
+@Observable
+class Podcasts {
+    var items = [Podcast]() {
+        didSet {
+            if let encoded = try? JSONEncoder().encode(items) {
+                UserDefaults.standard.set(encoded, forKey: "podcasts")
+            }
+        }
+    }
+
+    init() {
+        if let savedItems = UserDefaults.standard.data(forKey: "podcasts") {
+            if let decoded = try? JSONDecoder().decode([Podcast].self, from: savedItems) {
+                items = decoded
+                return
+            }
+        }
+
+        items = []
+    }
+}
+
 struct ListView: View {
     @State private var showAddPodcast: Bool = false
-    @State public var podcasts: [Podcast] = [
-        Podcast(
-            id: "73c478de-53b8-11ef-8862-b23c27c960c6", title: "ATP", frequence: 1, interval: 1,
-            amount: 1, url: "https://www.swiftuiview.com/"),
-        Podcast(
-            id: UUID().uuidString, title: "Connected", frequence: 1, interval: 1, amount: 1,
-            url: "https://www.swiftuiview.com/"),
-        Podcast(
-            id: UUID().uuidString, title: "Upgrade", frequence: 1, interval: 1, amount: 1,
-            url: "https://www.swiftuiview.com/"),
-        Podcast(
-            id: UUID().uuidString, title: "Parlons marriage", frequence: 1, interval: 1, amount: 1,
-            url: "https://www.swiftuiview.com/"),
-    ]
+    @State private var podcastsTest = Podcasts()
+
     var body: some View {
         NavigationStack {
             List {
-                ForEach(podcasts) { podcast in
+                ForEach(podcastsTest.items) { podcast in
                     NavigationLink("\(podcast.title)", value: podcast)
                 }
 
-            }.navigationDestination(for: Podcast.self) { podcast in
+            }
+            .navigationDestination(for: Podcast.self) { podcast in
                 ContentView2(podcast: podcast)
-            }.navigationTitle("PodShift")
-                .toolbar {
-                    Button(action: {
-                        showAddPodcast = true
-                    }) {
-                        Image(systemName: "plus")
-                            .padding()
-                    }
+            }
+            .navigationTitle("PodShift")
+            .toolbar {
+                Button(action: {
+                    showAddPodcast = true
+                }) {
+                    Image(systemName: "plus")
+                        .padding()
                 }
-                .sheet(isPresented: $showAddPodcast) {
-                    AddView(podcasts: podcasts)
-                }
+            }
+            .sheet(isPresented: $showAddPodcast) {
+                AddView(podcasts: podcastsTest)
+            }
         }
 
     }

@@ -31,10 +31,13 @@ struct ContentView2: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var currentEpisode: Int = 1
+    private var feed: URL?
 
     init(podcast: Podcast) {
         self.interval = Interval(rawValue: podcast.interval)!
         self.podcast = podcast
+        //TODO: Make the URL change with ENV
+        self.feed = URL(string: "http://localhost:8000/PodShift/\(self.podcast.id)")
     }
 
     var body: some View {
@@ -72,21 +75,38 @@ struct ContentView2: View {
                     value: $podcast.frequence, in: 1...50
                 )
                 .disabled(!editMode)
-                if editMode {
-                    Divider()
-                    HStack {
-                        Text("Current episode number")
-                        Spacer()
-                        TextField(
-                            "Number of episode", value: $currentEpisode,
-                            formatter: NumberFormatter()
-                        )
-                        .multilineTextAlignment(.center)
-                        .keyboardType(.numberPad)
-                        .frame(minWidth: 15, maxWidth: 60)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        Stepper("Value", value: $currentEpisode, in: 1...Int.max)
-                            .labelsHidden()
+            }
+
+            if editMode {
+                HStack {
+                    Text("Current episode number")
+                    Spacer()
+                    TextField(
+                        "Number of episode", value: $currentEpisode,
+                        formatter: NumberFormatter()
+                    )
+                    .multilineTextAlignment(.center)
+                    .keyboardType(.numberPad)
+                    .frame(minWidth: 15, maxWidth: 60)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    Stepper("Value", value: $currentEpisode, in: 1...Int.max)
+                        .labelsHidden()
+                }
+            }
+            Section {
+                VStack(alignment: .leading) {
+                    Text("Custom URL")
+                        .fontWeight(.bold)
+                    if let validFeed = feed {
+                        ShareLink(item: validFeed) {
+                            HStack {
+                                Text(validFeed.absoluteString)
+                                Spacer()
+                                Image(systemName: "square.and.arrow.up")
+                                    .foregroundStyle(Color.accentColor)
+                            }
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
